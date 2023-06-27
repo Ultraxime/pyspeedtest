@@ -26,7 +26,7 @@ XPATH_CITY =    '//div[@class="result-data js-sponsor-name"]'
 #XPATH_IP='//*[@id="container"]/div[2]/div/div/div/div[3]/div[1]/div[3]/div/div[4]/div/div[2]/div/div[1]/div[3]'
 TCPDUMP_CMD="{} -i {} -w {} {}"
 
-def run_speedtest(browser="chrome", pcap_path="/tmp/a.pcap", pcap_opt="-s 60", pcap_iface='any', pcap_bin='tcpdump'):
+def run_speedtest(browser="chrome", pcap_path="/tmp/a.pcap", pcap_opt="-s 60", pcap_iface='any', pcap_bin='tcpdump', options=None):
 
     # Start Capture
     tcpdump = subprocess.Popen( TCPDUMP_CMD.format(pcap_bin, pcap_iface, pcap_path, pcap_opt).split() )
@@ -35,7 +35,11 @@ def run_speedtest(browser="chrome", pcap_path="/tmp/a.pcap", pcap_opt="-s 60", p
 
         # Start WebDriver and go on https://www.speedtest.net/
         if browser.lower() == "firefox":
-            driver = webdriver.Firefox()
+            if options:
+                opts = webdriver.FirefoxOptions()
+                for option in options:
+                    opts.add_argument(option)
+            driver = webdriver.Firefox(options=opts)
         elif browser.lower() == "chrome":
             driver = webdriver.Chrome()
         elif browser.lower() == "safari":
@@ -72,7 +76,8 @@ def run_speedtest(browser="chrome", pcap_path="/tmp/a.pcap", pcap_opt="-s 60", p
         if browser.lower() == "safari":
             driver.execute_script("arguments[0].click();", elem[0])
         else:
-            elem[0].click()
+            # elem[0].click()
+            driver.execute_script("arguments[0].click();", elem[0])
         time.sleep(SHORT_TIME)
 
         # Wait Results
